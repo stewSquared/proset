@@ -3,40 +3,56 @@ from itertools import compress
 from random import shuffle
 import os
 
-NUM_DOTS = 6
+NUM_DOTS = 4
 
-def newGame():
-    deck = list(range(1, 2**NUM_DOTS)); shuffle(deck)
-    table = []
-    for _ in range(NUM_DOTS + 1): table.append(deck.pop())
+class Deck:
+    def __init__(self, numDots):
+        stock = list(range(1, 2**numDots)); shuffle(stock)
+        upcards = []
+        for _ in range(numDots + 1): upcards.append(stock.pop())
+        self.stock = stock
+        self.upcards = upcards
 
-    os.system("clear")
-    print("\nWelcome to proset. {} cards remaining.\n".format(len(deck) +
-                                                              len(table)))
-    while len(table) + len(deck) > 0:
-        cards = list(compress(enumerate(table), cliTurn(table)))
-        if reduce(lambda a, b: a^b, 
+    def cardsRemaining(self):
+        return len(self.stock) + len(self.upcards)
+    
+    def isEmpty(self):
+        return len(self.stock) + len(self.upcards) == 0
+
+    def remove(self, selectors):
+        cards = list(compress(enumerate(self.upcards), selectors))
+        if reduce(lambda a, b: a^b,
                   (c for i,c in cards)) == 0:
             for selectedIndex in (i for i,c in cards):
                 print(selectedIndex)
                 try:
-                    newCard = deck.pop()
+                    newCard = self.stock.pop()
                 except IndexError:
                     newCard = 0
-                table[selectedIndex] = newCard
-            table = list(filter(None, table))
+                self.upcards[selectedIndex] = newCard
+            self.upcards = list(filter(None, self.upcards))
+            return True
+        else:
+            return False
 
+def newGame():
+    deck = Deck(NUM_DOTS)
+    os.system("clear")
+    print("\nWelcome to proset. {} cards remaining.\n"
+          .format(deck.cardsRemaining()))
+    while not deck.isEmpty():
+        selection = chooseFrom(deck.upcards)
+        if deck.remove(selection):
             os.system("clear")
-            print("\nCorrect. {} cards remaining.\n".format(len(deck) +
-                                                            len(table)))
+            print("\nCorrect. {} cards remaining.\n"
+          .format(deck.cardsRemaining()))
         else:
             os.system("clear")
-            print("\nBad guess. {} cards remaining.\n".format(len(deck) +
-                                                               len(table)))
-
+            print("\nBad guess. {} cards remaining.\n"
+          .format(deck.cardsRemaining()))
     print("Game complete. Thank you for playing.\n")
 
-def cliTurn(cards):
+def chooseFrom(cards):
     def cardDisplay(card):
         return bin(card)[2:].zfill(NUM_DOTS).replace('0','---').replace('1','<O>')
 
