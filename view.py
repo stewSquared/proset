@@ -2,7 +2,7 @@ import sys
 import pygame
 import pygame.gfxdraw
 from pygame.locals import *
-from itertools import product, compress
+from itertools import product, compress, zip_longest
 
 
 def cardGenerator(size):
@@ -55,8 +55,12 @@ def tableGenerator(size):
                      for n in range(3))
 
     def tableImage(cardNums):
-        for n, p in zip(cardNums, positions):
-            table.blit(cardGen(n), p)
+        for n, p in zip_longest(cardNums, positions):
+            if n is not None:
+                table.blit(cardGen(n), p)
+            else:
+                # table.blit(cardGen(0), p)
+                table.fill(bgcolor, cardGen().get_rect().move(p))
         return table
 
     return tableImage
