@@ -71,10 +71,16 @@ if __name__ == '__main__':  # A demo!
     size = (1440, 900)
     screen = pygame.display.set_mode(size)
     show = tableGenerator(size)
-    cardVals = (int(r()*63+1) for _ in range(7))
+    cardVals = [int(r()*63+1) for _ in range(7)]
 
     screen.blit(show(cardVals), (0, 0))
     pygame.display.flip()
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: sys.exit()
+            if event.type == pygame.VIDEORESIZE:
+                size = event.size
+                print(size)
+                show = tableGenerator(size)
+                screen.blit(show(cardVals), (0,0))
+                pygame.display.flip()
+            elif event.type == pygame.QUIT: sys.exit()
