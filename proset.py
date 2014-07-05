@@ -114,15 +114,20 @@ def new_game(num_dots, size):
     screen = pygame.display.set_mode(size)
     bgcolor = Color("dark green")
     deck = Deck(num_dots)
+    chosen = []
+    cards = []
+
+    def reload_cards():
+        nonlocal cards
+        cards = [Card(val, rect) for val, rect in
+                 zip(deck.upcards, card_rects(size))]
 
     def evaluate():
-        nonlocal cards, chosen
+        nonlocal chosen
         selection = [i in chosen for i in range(len(deck.upcards))]
         if deck.remove(selection):
             chosen = []
-            cards = [Card(val, rect) for val, rect in
-                     zip(deck.upcards, card_rects(size))]
-            show_cards()
+            reload_cards()
 
     def select(card_index):
         if card_index >= len(cards): return
@@ -132,7 +137,6 @@ def new_game(num_dots, size):
         else:
             chosen.append(card_index)
         cards[card_index].flip()
-        show_cards()
 
     def show_cards():
         screen.fill(bgcolor)
@@ -140,9 +144,7 @@ def new_game(num_dots, size):
             screen.blit(card.render(), card.rect)
         pygame.display.flip()
 
-    chosen = []
-    cards = [Card(val, rect) for val, rect in
-             zip(deck.upcards, card_rects(size))]
+    reload_cards()
     show_cards()
 
     while not deck.isEmpty():
@@ -153,10 +155,14 @@ def new_game(num_dots, size):
                 elif event.unicode.isdigit():
                     select(int(event.unicode)-1)
                 elif event.key == K_ESCAPE:
-                    chosen = []
-                    show_cards()
+                    for c in chosen.copy():
+                        select(c)
+            elif event.type is VIDEORESIZE:
+                size = event.size
+                reload_cards()
             elif event.type is QUIT:
                 sys.exit()
+            show_cards()
 
 
 if __name__ == '__main__':
