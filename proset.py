@@ -157,6 +157,14 @@ def new_game(num_dots, size):
                 elif event.key == K_ESCAPE:
                     for c in chosen.copy():
                         select(c)
+            elif event.type is MOUSEBUTTONDOWN:
+                card_index = None
+                for i in range(len(cards)):
+                    if cards[i].rect.collidepoint(event.pos):
+                        card_index = i
+                        break
+                if card_index is not None:
+                    select(card_index)
             elif event.type is VIDEORESIZE:
                 size = event.size
                 reload_cards()
@@ -167,7 +175,7 @@ def new_game(num_dots, size):
 
 
 if __name__ == '__main__':
-    numDots = int(sys.argv[1]) if len(sys.argv) > 1 else 4
+    numDots = int(sys.argv[1]) if len(sys.argv) > 1 else 6
     try:
         size = (tuple(map(int, sys.argv[2:4]))
                 if len(sys.argv) > 3 else (1024, 768))
