@@ -163,6 +163,7 @@ def new_game(num_dots, size):
             elif event.type is QUIT:
                 sys.exit()
             show_cards()
+        pygame.time.wait(30)
 
 
 if __name__ == '__main__':
